@@ -20,6 +20,10 @@
                   <el-form-item>
                     <el-button type="primary" round @click="addSpaces">Add Spaces</el-button>
                     <el-button type="primary" round @click="addBookSymbols">Add Book Symbols</el-button>
+                    <el-button type="primary" round @click="randomCapitalize">Random Capitalize</el-button>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="warning" round @click="executeAllQuickActions">Execute All</el-button>
                   </el-form-item>
                 </el-form>
               </div>
@@ -88,7 +92,7 @@
             </el-collapse-item>
             <el-collapse-item name="4">
               <template slot="title">
-                <h3>Repeater</h3>
+                <h3>Repeat</h3>
               </template>
               <div>
                 <el-form :model="repeaterForm">
@@ -115,6 +119,25 @@
                 </el-form>
               </div>
             </el-collapse-item>
+            <el-collapse-item name="5">
+              <template slot="title">
+                <h3>Capitalize</h3>
+              </template>
+              <div>
+                <el-form :model="capitalizeForm">
+                  <el-form-item label="Capitalize:">
+                    <el-radio-group v-model="capitalizeForm.mode">
+                      <el-radio :label="0">Everything</el-radio>
+                      <el-radio :label="1">Start of Sentence</el-radio>
+                      <el-radio :label="2">Start of Paragraph</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" round @click="startCapitalize">Execute</el-button>
+                  </el-form-item>
+                </el-form>
+              </div>
+            </el-collapse-item>
           </el-collapse>
         </el-col>
       </el-row>
@@ -124,9 +147,12 @@
 </template>
 
 <script>
+import LegendwordExpression from './LegendwordExpression';
+
 const formatSeparators = [null, '\n', ',', ';', ' '];
 const convertFormatSeparators = ['', '\n', ',', ';', ' '];
 const repeaterSeparators = ['\n', '', ' '];
+const capitalizeSeparators = [null, '.', '\n'];
 export default {
   data() {
     return {
@@ -147,10 +173,44 @@ export default {
         repeatMode: 0,
         separator: 0,
         repeatCount: 3
+      },
+      capitalizeForm: {
+        mode: 1
       }
     }
   },
   methods: {
+    executeAllQuickActions() {
+      this.randomCapitalize();
+      this.addBookSymbols();
+      this.addSpaces();
+    },
+    randomCapitalize() {
+      this.text = this.text.toLowerCase().split('').map(v => Math.random()<0.5 ? v.toUpperCase() : v).join('');
+      this.textareaChange();
+      this.textareaFocus();
+    },
+    startCapitalize() {
+      if (this.capitalizeForm.mode == 0) {
+        this.text = this.text.toUpperCase()
+      }
+      else {
+        let separator = capitalizeSeparators[this.capitalizeForm.mode];
+        let sentences = this.text.split(separator);
+        for (let i=0;i<sentences.length;i++) {
+          let sentence = sentences[i];
+          for (let j=0;j<sentence.length;j++) {
+            if (sentence[j] != ' ' && sentence[j] != '\n') {
+              sentences[i] = sentence.substring(0, j) + sentence[j].toUpperCase() + sentence.substring(j+1);
+              break;
+            }
+          }
+        }
+        this.text = sentences.join(separator);
+      }
+      this.textareaChange();
+      this.textareaFocus();
+    },
     startRepeater() {
       let splitter = null;
       let content;
@@ -260,6 +320,12 @@ export default {
     if (saved!==null) {
       this.activeTools = saved;
     }
+    //LegendwordExpression test
+    let expr = "(a?b) or (a?[345]) or (?<n>a) or (?<nc[.]><n>)";
+    console.log("Expression:", expr);
+    let obj = new LegendwordExpression(expr);
+    console.log(obj.groups);
+    console.log(obj.groups[0].query);
   }
 }
 </script>
