@@ -1,5 +1,9 @@
 # text-formatter
 
+An instance of this repository is running live at [https://legendword.com/text-formatter](https://legendword.com/text-formatter)
+
+TextFormatter is a tool that provides multiple useful text actions for convenient use at any time. Just paste the text into the textarea and perform the desired action!
+
 ## Project setup
 ```
 npm install
@@ -13,16 +17,6 @@ npm run serve
 ### Compiles and minifies for production
 ```
 npm run build
-```
-
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
 ```
 
 ### Customize configuration
